@@ -1,12 +1,12 @@
 'use client';
 
-import LoginForm from '../../components/LoginForm';
+import RegisterForm from '../../components/RegisterForm';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -17,13 +17,13 @@ export default function LoginPage() {
   }, [user, router]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <LoginForm />
-      <div className="text-center mt-4 pb-8">
+    <div>
+      <RegisterForm />
+      <div className="text-center mt-4">
         <p className="text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
-            Register here
+          Already have an account?{' '}
+          <Link href="/login" className="text-indigo-600 hover:text-indigo-500">
+            Sign in here
           </Link>
         </p>
       </div>

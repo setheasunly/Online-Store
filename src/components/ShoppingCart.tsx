@@ -2,9 +2,11 @@
 
 import { useCartStore } from '../store/cartStore';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ShoppingCart() {
   const { items, total, removeItem, updateQuantity } = useCartStore();
+  const router = useRouter();
 
   if (items.length === 0) {
     return (
@@ -68,7 +70,7 @@ export default function ShoppingCart() {
 
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-sm text-gray-500 hover:text-gray-700 "
+                      className="text-sm text-gray-500 hover:text-gray-700"
                     >
                       Remove
                     </button>
@@ -108,12 +110,12 @@ export default function ShoppingCart() {
           >
             View Cart
           </Link>
-          <button
-            onClick={() => alert('Checkout functionality coming soon!')}
+          <Link
+            href="/checkout"
             className="w-full px-4 py-2 text-sm font-medium text-center text-white bg-gray-900 rounded-lg hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Checkout
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ export const mockProducts: Product[] = [
     description: 'High-quality wireless headphones with noise cancellation',
     price: 199.99,
     category: 'electronics',
-    //image: '/images/headphones.jpg',
     image: "https://media.littlewoods.com/i/littlewoods/URTU4_SQ1_0000000004_BLACK_SLf?$300x400_retinamobilex2$",
     stock: 50
   },

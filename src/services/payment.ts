@@ -6,41 +6,46 @@ interface PaymentDetails {
 }
 
 interface PaymentResponse {
-  success: boolean;
   transactionId: string;
-  message: string;
+  status: 'success' | 'pending' | 'failed';
+  timestamp: string;
 }
 
-export const paymentService = {
+class PaymentService {
   async processPayment(details: PaymentDetails): Promise<PaymentResponse> {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Mock validation
+    // Basic validation
     if (details.cardNumber.length !== 16) {
       throw new Error('Invalid card number');
+    }
+
+    if (!details.expiryDate.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/)) {
+      throw new Error('Invalid expiry date');
     }
 
     if (details.cvv.length !== 3) {
       throw new Error('Invalid CVV');
     }
 
-    // Mock successful payment
-    return {
-      success: true,
-      transactionId: `TR-${Math.random().toString(36).substr(2, 9)}`,
-      message: 'Payment processed successfully',
-    };
-  },
-
-  async verifyPayment(transactionId: string): Promise<PaymentResponse> {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Simulate success/failure (90% success rate)
+    if (Math.random() > 0.9) {
+      throw new Error('Payment failed. Please try again.');
+    }
 
     return {
-      success: true,
-      transactionId,
-      message: 'Payment verified successfully',
+      transactionId: `tr_${Math.random().toString(36).substr(2, 9)}`,
+      status: 'success',
+      timestamp: new Date().toISOString()
     };
-  },
-}; 
+  }
+
+  async verifyPayment(transactionId: string): Promise<boolean> {
+    // Simulate verification delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return true;
+  }
+}
+
+export const paymentService = new PaymentService(); 

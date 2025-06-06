@@ -1,26 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { paymentService } from '@/services/payment';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, clearCart } = useCartStore();
-  const { isAuthenticated } = useAuthStore();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  if (!isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!user || items.length === 0) {
+      setShouldRedirect(true);
+    }
+  }, [user, items.length]);
 
-  if (items.length === 0) {
-    router.push('/cart');
-    return null;
+  useEffect(() => {
+    if (shouldRedirect) {
+      if (!user) {
+        router.push('/login');
+      } else if (items.length === 0) {
+        router.push('/cart');
+      }
+    }
+  }, [shouldRedirect, user, items.length, router]);
+
+  if (shouldRedirect) {
+    return <div className="text-center py-16">Redirecting...</div>;
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,10 +48,34 @@ export default function CheckoutPage() {
     };
 
     try {
-      const response = await paymentService.processPayment(paymentDetails);
-      await paymentService.verifyPayment(response.transactionId);
+      // Process payment
+      const paymentResponse = await paymentService.processPayment(paymentDetails);
+      await paymentService.verifyPayment(paymentResponse.transactionId);
+
+      // Create order
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          items: items.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      // Clear cart and redirect
       clearCart();
-      router.push('/order-success');
+      router.push('/orders');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Payment failed');
     } finally {

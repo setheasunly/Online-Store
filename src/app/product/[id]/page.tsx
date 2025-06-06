@@ -9,6 +9,10 @@ export default function ProductDetail() {
   const params = useParams();
   const { addItem } = useCartStore();
 
+  if (!params?.id) {
+    return <div>Invalid product ID</div>;
+  }
+
   const product = mockProducts.find((p) => p.id === params.id);
 
   if (!product) {
